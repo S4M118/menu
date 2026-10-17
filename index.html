@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#111827">
+  <meta name="description" content="Consulta rápida de productos y precios para el personal de sala.">
+  <title>Carta · Consulta de precios</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📋</text></svg>">
+</head>
+<body>
+
+  <!-- Sprite local de iconos (sin dependencias externas) -->
+  <svg class="icon-sprite" aria-hidden="true" hidden xmlns="http://www.w3.org/2000/svg">
+    <symbol id="icon-fish" viewBox="0 0 24 24">
+      <g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M6.5 12c0-3.3 3.6-6 8-6s7.5 2.7 7.5 6-3.6 6-7.5 6-8-2.7-8-6z"/>
+        <path d="M6.5 12 3 9v6l3.5-3z"/>
+        <path d="M12.6 9.3c.9 1.7.9 3.7 0 5.4"/>
+        <circle cx="17" cy="10.6" r="0.9" fill="currentColor" stroke="none"/>
+      </g>
+    </symbol>
+    <symbol id="icon-meat" viewBox="0 0 24 24">
+      <g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M5 15.5C4 10.5 8.5 5 14.5 5c4 0 6.5 2.2 6.5 5 0 4-4.5 8-9.5 8-3 0-5.5-.8-6.5-2.5z"/>
+        <circle cx="13.6" cy="11" r="2.6"/>
+      </g>
+    </symbol>
+    <symbol id="icon-soup" viewBox="0 0 24 24">
+      <g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3.5 11h17a8.5 8.5 0 0 1-17 0z"/>
+        <path d="M9 7.6c.9-1 .9-2.1 0-3.1M12 7.6c.9-1 .9-2.1 0-3.1M15 7.6c.9-1 .9-2.1 0-3.1"/>
+      </g>
+    </symbol>
+    <symbol id="icon-drink" viewBox="0 0 24 24">
+      <g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M6.5 7.5h11l-1.3 11.6a1.6 1.6 0 0 1-1.6 1.4H9.4a1.6 1.6 0 0 1-1.6-1.4L6.5 7.5z"/>
+        <path d="M7.2 12.4h9.6"/>
+        <path d="M14.6 3.2 12.8 11"/>
+      </g>
+    </symbol>
+    <symbol id="icon-dish" viewBox="0 0 24 24">
+      <g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="8.5"/>
+        <circle cx="12" cy="12" r="4.5"/>
+      </g>
+    </symbol>
+  </svg>
+
+  <!-- Sticky wrapper: header + search stay pinned while the list scrolls -->
+  <div class="sticky-top">
+    <header class="app-header">
+      <h1 class="app-title" id="appTitle" title="Doble toque para modo edición">
+        <img class="brand-logo" src="logo.svg" alt="Restaurante Campestre El Dorado" width="360" height="72">
+      </h1>
+
+      <button
+        type="button"
+        class="icon-btn lock-btn"
+        id="lockBtn"
+        aria-pressed="false"
+        aria-label="Administrar carta"
+        title="Administrar carta">
+        <!-- open padlock -->
+        <svg class="icon icon-open" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path d="M8 10V6.5a4 4 0 0 1 8 0V8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <rect x="4" y="10" width="16" height="11" rx="2" fill="none" stroke="currentColor" stroke-width="2"/>
+          <circle cx="12" cy="15.5" r="1.6" fill="currentColor"/>
+        </svg>
+        <!-- closed padlock -->
+        <svg class="icon icon-closed" viewBox="0 0 24 24" aria-hidden="true" focusable="false" hidden>
+          <rect x="4" y="10" width="16" height="11" rx="2" fill="none" stroke="currentColor" stroke-width="2"/>
+          <path d="M8 10V7a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="12" cy="15.5" r="1.6" fill="currentColor"/>
+        </svg>
+      </button>
+    </header>
+
+    <div class="search-bar" role="search">
+      <label class="visually-hidden" for="searchInput">Buscar producto</label>
+      <svg class="search-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/>
+        <path d="m16.5 16.5 4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      <input
+        type="search"
+        id="searchInput"
+        class="search-input"
+        placeholder="Buscar producto..."
+        autocomplete="off"
+        autocapitalize="words"
+        spellcheck="false"
+        enterkeyhint="search">
+      <button type="button" class="clear-btn" id="clearBtn" aria-label="Borrar búsqueda" hidden>
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path d="m6 6 12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <main class="app-main">
+    <p class="result-meta" id="resultMeta" role="status" aria-live="polite"></p>
+
+    <section class="section" id="allSection" aria-labelledby="allTitle">
+      <h2 class="section-title" id="allTitle">Todos los productos</h2>
+      <ul class="product-list" id="productList"></ul>
+    </section>
+
+    <div class="empty-state" id="emptyState" hidden>
+      <p class="empty-title" id="emptyTitle">No hay productos en la carta</p>
+      <p class="empty-hint" id="emptyHint">Activa el candado para añadir productos.</p>
+    </div>
+  </main>
+
+  <!-- Botón flotante de añadir, solo en modo administración -->
+  <button type="button" class="fab" id="addBtn" hidden>
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+    </svg>
+    <span>Añadir</span>
+  </button>
+
+  <!-- Add / edit dialog -->
+  <dialog class="product-dialog" id="productDialog" aria-labelledby="dialogTitle">
+    <form id="productForm" novalidate>
+      <h2 class="dialog-title" id="dialogTitle">Añadir producto</h2>
+
+      <div class="field">
+        <label for="nameInput">Producto</label>
+        <input type="text" id="nameInput" name="name" maxlength="80" required
+               placeholder="Ej. Arroz con pollo" autocomplete="off" autocapitalize="words">
+        <p class="field-error" id="nameError" hidden>Escribe el nombre del producto.</p>
+      </div>
+
+      <div class="field">
+        <label for="priceInput">Precio (COP)</label>
+        <input type="number" id="priceInput" name="price" inputmode="numeric"
+               min="0" max="99999999" step="1" required placeholder="0">
+        <p class="field-error" id="priceError" hidden>Introduce un precio válido.</p>
+      </div>
+
+      <div class="field">
+        <label for="descInput">Descripción (opcional)</label>
+        <textarea id="descInput" name="desc" maxlength="140" rows="2"
+                  placeholder="Ej. Filete de trucha con pimiento asado" autocomplete="off"></textarea>
+      </div>
+
+      <div class="field">
+        <label for="iconInput">Icono</label>
+        <select id="iconInput" name="icon">
+          <option value="auto">Automático (según el nombre)</option>
+          <option value="fish">Pescado</option>
+          <option value="meat">Carne</option>
+          <option value="soup">Sopa o caldo</option>
+          <option value="drink">Bebida</option>
+          <option value="dish">Preparación</option>
+        </select>
+      </div>
+
+      <div class="dialog-actions">
+        <button type="button" class="btn btn-ghost" id="cancelBtn">Cancelar</button>
+        <button type="submit" class="btn btn-primary" id="saveBtn">Guardar</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Aviso previo a activar el modo de administración -->
+  <dialog class="product-dialog confirm-dialog" id="adminDialog" aria-labelledby="adminDialogTitle">
+    <div class="confirm-body">
+      <h2 class="dialog-title" id="adminDialogTitle">Administrar carta</h2>
+      <p class="confirm-text">Estás a punto de modificar la carta del Restaurante Campestre El Dorado. Los cambios pueden afectar los precios y la información que consultan los empleados. Continúa únicamente si necesitas administrar los productos y verifica los datos antes de guardar</p>
+      <div class="dialog-actions">
+        <button type="button" class="btn btn-ghost" id="adminCancelBtn">Cancelar</button>
+        <button type="button" class="btn btn-primary" id="adminConfirmBtn">Continuar</button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Confirmación de borrado -->
+  <dialog class="product-dialog confirm-dialog" id="deleteDialog" aria-labelledby="deleteDialogTitle">
+    <div class="confirm-body">
+      <h2 class="dialog-title" id="deleteDialogTitle">Eliminar producto</h2>
+      <p class="confirm-text">Vas a eliminar <strong id="deleteProductName"></strong> de la carta. Esta acción quita el producto del listado guardado y no se puede deshacer desde la aplicación.</p>
+      <div class="dialog-actions">
+        <button type="button" class="btn btn-ghost" id="deleteCancelBtn">Cancelar</button>
+        <button type="button" class="btn btn-danger" id="deleteConfirmBtn">Eliminar</button>
+      </div>
+    </div>
+  </dialog>
+
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+  <script src="firebase.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

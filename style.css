@@ -56,13 +56,32 @@ body {
   border: 0;
 }
 
+/* ---------- Fondo con la fachada del restaurante ----------
+   La imagen vive fija detrás de la app con un velo oscuro;
+   las tarjetas y el buscador (blancos y opacos) mantienen
+   la legibilidad del texto. El desplazamiento ligeramente
+   sobredimensionado evita descentrar el desenfoque. */
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: -12px;
+  z-index: -1;
+  background:
+    linear-gradient(rgba(16, 19, 18, 0.45), rgba(16, 19, 18, 0.45)),
+    url('fachada.jpg') center / cover no-repeat;
+  filter: blur(2px);
+}
+
 /* ---------- Sticky header + search ---------- */
 
 .sticky-top {
   position: sticky;
   top: 0;
   z-index: 20;
-  background: var(--bg);
+  background: rgba(16, 19, 18, 0.55);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
   box-shadow: var(--shadow);
   padding-top: env(safe-area-inset-top);
 }
@@ -86,18 +105,20 @@ body {
 
 .app-title {
   margin: 0;
-  font-size: 1.5rem;
-  font-weight: 800;
-  letter-spacing: -0.02em;
+  font-size: 0.95rem;
+  line-height: 1.2;
+  font-weight: 700;
+  letter-spacing: 0.01em;
   user-select: none;
   -webkit-user-select: none;
   -webkit-tap-highlight-color: transparent;
 }
 
-.brand-logo {
+.brand-accent {
   display: block;
-  height: 40px;
-  width: auto;
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--luminous);
 }
 
 .icon-btn {
@@ -203,9 +224,13 @@ body {
 }
 
 .result-meta {
-  margin: 4px 2px 10px;
+  display: inline-block;
+  margin: 12px 2px 10px;
+  padding: 3px 12px;
   font-size: 0.85rem;
   color: var(--text-strong);
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: 999px;
   min-height: 1.2em;
 }
 
@@ -313,6 +338,8 @@ body.admin-mode .admin-only { display: inline-flex; }
   text-align: center;
   padding: 48px 16px;
   color: var(--text-strong);
+  background: rgba(255, 255, 255, 0.88);
+  border-radius: var(--radius);
 }
 
 .empty-title {
@@ -520,7 +547,8 @@ body.admin-mode .admin-only { display: inline-flex; }
 
 @media (min-width: 640px) {
   body { font-size: 18px; }
-  .app-title { font-size: 1.75rem; }
+  .app-title { font-size: 1.05rem; }
+  .brand-accent { font-size: 1.45rem; }
   .product-item { padding: 16px 20px; }
 }
 

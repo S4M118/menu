@@ -169,14 +169,24 @@
 
   <!-- Aviso previo a activar el modo de administración -->
   <dialog class="product-dialog confirm-dialog" id="adminDialog" aria-labelledby="adminDialogTitle">
-    <div class="confirm-body">
+    <form id="adminForm" novalidate class="confirm-body">
       <h2 class="dialog-title" id="adminDialogTitle">Administrar carta</h2>
       <p class="confirm-text">Estás a punto de modificar la carta del Restaurante Campestre La Esmeralda. Los cambios pueden afectar los precios y la información que consultan los empleados. Continúa únicamente si necesitas administrar los productos y verifica los datos antes de guardar</p>
+
+      <div id="adminCredenciales" hidden>
+        <div class="field">
+          <label for="adminPassInput">Clave de administración</label>
+          <input type="password" id="adminPassInput" autocomplete="current-password"
+                 placeholder="••••••••">
+        </div>
+        <p class="field-error" id="adminAuthError" hidden>Clave incorrecta.</p>
+      </div>
+
       <div class="dialog-actions">
         <button type="button" class="btn btn-ghost" id="adminCancelBtn">Cancelar</button>
-        <button type="button" class="btn btn-primary" id="adminConfirmBtn">Continuar</button>
+        <button type="submit" class="btn btn-primary" id="adminConfirmBtn">Continuar</button>
       </div>
-    </div>
+    </form>
   </dialog>
 
   <!-- Confirmación de borrado -->

@@ -32,6 +32,10 @@
     adminDialog: document.getElementById('adminDialog'),
     adminConfirmBtn: document.getElementById('adminConfirmBtn'),
     adminCancelBtn: document.getElementById('adminCancelBtn'),
+    adminForm: document.getElementById('adminForm'),
+    adminCredenciales: document.getElementById('adminCredenciales'),
+    adminPassInput: document.getElementById('adminPassInput'),
+    adminAuthError: document.getElementById('adminAuthError'),
     deleteDialog: document.getElementById('deleteDialog'),
     deleteName: document.getElementById('deleteProductName'),
     deleteConfirmBtn: document.getElementById('deleteConfirmBtn'),
@@ -408,13 +412,89 @@
     render();
   }
 
+  /* Mensajes claros según el error de Authentication */
+  function mensajeAuth(err) {
+    var code = String((err && err.code) || '');
+    if (code.indexOf('invalid-credential') !== -1 || code.indexOf('wrong-password') !== -1 ||
+        code.indexOf('user-not-found') !== -1 || code.indexOf('invalid-email') !== -1) {
+      return 'Correo o clave incorrectos.';
+    }
+    if (code.indexOf('too-many-requests') !== -1) {
+      return 'Demasiados intentos. Espera un momento y vuelve a intentar.';
+    }
+    if (code.indexOf('network') !== -1) {
+      return 'Sin conexión para validar la clave.';
+    }
+    if (code.indexOf('operation-not-allowed') !== -1 || code.indexOf('configuration-not-found') !== -1) {
+      return 'El acceso no está habilitado en Firebase. Activa «Correo/contraseña» en Authentication.';
+    }
+    return 'No se pudo iniciar la sesión. Intenta otra vez.';
+  }
+
+  function mostrarErrorAuth(mensaje) {
+    el.adminAuthError.textContent = mensaje;
+    el.adminAuthError.hidden = false;
+  }
+
+  function limpiarErrorAuth() {
+    el.adminAuthError.hidden = true;
+    el.adminAuthError.textContent = '';
+    el.adminPassInput.value = '';
+  }
+
+  function activarAdministracion() {
+    closeModal(el.adminDialog);
+    setAdminMode(true);
+  }
+
   /* El aviso previo es la única puerta de entrada al modo edición */
   function requestAdmin() {
     if (adminMode) {
       setAdminMode(false);
       return;
     }
+    var hayCloud = !!(cloud && typeof cloud.crear === 'function');
+    var haySesion = !!(hayCloud && typeof cloud.usuario === 'function' && cloud.usuario());
+    /* Solo se piden credenciales si la nube está activa y no hay sesión recordada */
+    el.adminCredenciales.hidden = !hayCloud || haySesion;
+    limpiarErrorAuth();
+    el.adminConfirmBtn.disabled = false;
     openModal(el.adminDialog);
+    if (!el.adminCredenciales.hidden) {
+      el.adminPassInput.focus();
+    }
+  }
+
+  function enviarAcceso(event) {
+    event.preventDefault();
+
+    /* Sin Firebase (file:// o CDN caído) el modo edición es local, como siempre */
+    if (!cloud || typeof cloud.crear !== 'function') {
+      activarAdministracion();
+      return;
+    }
+
+    /* El teléfono del dueño recuerda la sesión */
+    if (typeof cloud.usuario === 'function' && cloud.usuario()) {
+      activarAdministracion();
+      return;
+    }
+
+    var clave = el.adminPassInput.value;
+    if (!clave) {
+      mostrarErrorAuth('Escribe la clave de administración.');
+      return;
+    }
+
+    var dueno = (window.CartaCloud && window.CartaCloud.USUARIO_DUENO) || 'admin@carta.resesm';
+    el.adminConfirmBtn.disabled = true;
+    cloud.iniciarSesion(dueno, clave).then(function () {
+      el.adminConfirmBtn.disabled = false;
+      activarAdministracion();
+    }).catch(function (err) {
+      el.adminConfirmBtn.disabled = false;
+      mostrarErrorAuth(mensajeAuth(err));
+    });
   }
 
   /* ---------- CRUD ---------- */
@@ -603,12 +683,10 @@
     }
   });
 
-  el.adminConfirmBtn.addEventListener('click', function () {
-    closeModal(el.adminDialog);
-    setAdminMode(true);
-  });
+  el.adminForm.addEventListener('submit', enviarAcceso);
 
   el.adminCancelBtn.addEventListener('click', function () {
+    limpiarErrorAuth();
     closeModal(el.adminDialog);
   });
 
@@ -642,6 +720,10 @@
       pendingDeleteId = null;
       closeModal(el.deleteDialog);
     }
+  });
+
+  el.adminPassInput.addEventListener('input', function () {
+    el.adminAuthError.hidden = true;
   });
 
   document.addEventListener('keydown', function (event) {

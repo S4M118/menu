@@ -10,8 +10,13 @@
   'use strict';
 
   var VERSION = '11.0.0';
+  /* Identificador fijo del dueño (no es secreto; la clave vive en Firebase) */
+  var USUARIO_DUENO = 'admin@carta.resesm';
   var URL_APP = 'https://www.gstatic.com/firebasejs/' + VERSION + '/firebase-app.js';
   var URL_DB = 'https://www.gstatic.com/firebasejs/' + VERSION + '/firebase-firestore.js';
+  var URL_AUTH = 'https://www.gstatic.com/firebasejs/' + VERSION + '/firebase-auth.js';
+  var fa = null;
+  var auth = null;
   var COLECCION = 'platos';
 
   /* Configuración del proyecto (identificadores públicos del cliente).
@@ -61,10 +66,11 @@
       return Promise.resolve(null);
     }
 
-    return Promise.all([import(URL_APP), import(URL_DB)])
+    return Promise.all([import(URL_APP), import(URL_DB), import(URL_AUTH)])
       .then(function (mods) {
         var appMod = mods[0];
         fs = mods[1];
+        fa = mods[2];
 
         var app = appMod.initializeApp(firebaseConfig);
 
@@ -78,6 +84,13 @@
         }
 
         refColeccion = fs.collection(db, COLECCION);
+
+        try {
+          auth = fa.getAuth(app);
+        } catch (errAuth) {
+          auth = null;
+          console.warn('Authentication no disponible:', errAuth);
+        }
 
         var sembrada = false;
         var avisoError = false;
@@ -114,7 +127,19 @@
         });
       })
       .then(function () {
-        return {
+        var sesion = auth ? {
+          usuario: function () {
+            return auth.currentUser && auth.currentUser.email;
+          },
+          iniciarSesion: function (correo, clave) {
+            return fa.signInWithEmailAndPassword(auth, correo, clave);
+          },
+          cerrarSesion: function () {
+            return fa.signOut(auth);
+          }
+        } : {};
+
+        return Object.assign({
           crear: function (item) {
             return fs.addDoc(refColeccion, aDocumento(item)).then(function (ref) {
               return ref.id;
@@ -126,7 +151,7 @@
           borrar: function (id) {
             return fs.deleteDoc(fs.doc(refColeccion, id));
           }
-        };
+        }, sesion);
       })
       .catch(function (err) {
         console.warn('Firebase no disponible:', err && err.message ? err.message : err);
@@ -136,6 +161,7 @@
   }
 
   window.CartaCloud = {
-    conectar: conectar
+    conectar: conectar,
+    USUARIO_DUENO: USUARIO_DUENO
   };
 })();
